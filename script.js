@@ -1,6 +1,7 @@
 // dependencies
 const { OpenAI } = require('langchain/llms/openai');
 const inquirer = require('inquirer');
+const { PromptTemplate } = require("langchain/prompts");
 require('dotenv').config();
 
 // Creates and stores a wrapper for the OpenAI package along with basic configuration
@@ -30,11 +31,21 @@ const promptFunc = async (input) => {
     try {
       const res = await model.call(input);
       console.log(res);
+      
+      // Instantiation of a new object called "prompt" using the "PromptTemplate" class
+      const prompt = new PromptTemplate({
+        template: "You are a javascript expert and will answer the user’s coding questions thoroughly as possible.\n{question}",
+        inputVariables: ["question"],
+      });
     }
     catch (err) {
       console.error(err);
     }
   };
+
+  const promptInput = await prompt.format({
+    question: input
+  });
   
   // Initialization function that uses inquirer to prompt the user and returns a promise. It takes the user input and passes it through the call method
   const init = () => {
