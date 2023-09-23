@@ -2,6 +2,7 @@
 const { OpenAI } = require('langchain/llms/openai');
 const inquirer = require('inquirer');
 const { PromptTemplate } = require("langchain/prompts");
+const { StructuredOutputParser } = require("langchain/output_parsers");
 require('dotenv').config();
 
 // Creates and stores a wrapper for the OpenAI package along with basic configuration
@@ -47,6 +48,20 @@ const promptFunc = async (input) => {
     question: input
   });
   
+  // With a `StructuredOutputParser` we can define a schema for the output.
+const parser = StructuredOutputParser.fromNamesAndDescriptions({
+  code: "Javascript code that answers the user's question",
+  explanation: "detailed explanation of the example code provided",
+});
+
+const formatInstructions = parser.getFormatInstructions();
+const prompt = new PromptTemplate({
+  template: "You are a javascript expert and will answer the user’s coding questions thoroughly as possible.\n{format_instructions}\n{question}",
+  inputVariables: ["question"],
+  partialVariables: { format_instructions: formatInstructions }
+}); 
+  console.log(await parser.parse(res));
+
   // Initialization function that uses inquirer to prompt the user and returns a promise. It takes the user input and passes it through the call method
   const init = () => {
     inquirer.prompt([
